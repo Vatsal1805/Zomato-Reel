@@ -2,7 +2,7 @@ const mongoose=require('mongoose');
 
 
 function connectDB(){
-    mongoose.connect("mongodb://localhost:27017/zomato-reel")
+    mongoose.connect(process.env.MONGO_URI)
     .then(()=>{
         console.log("DB connected");
     })

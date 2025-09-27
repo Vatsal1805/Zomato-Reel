@@ -22,7 +22,7 @@ async function registerUser(req,res){
         const token=jwt.sign({id:newUser._id,
 
 
-        },"eeb59950fbcbbaf03b9f31152b77cdc1")
+        },process.env.JWT_SECRET)
 
         res.cookie("token",token)
 
@@ -44,7 +44,37 @@ async function registerUser(req,res){
 }
 
 async function loginUser(req,res){
+    const {email,password}=req.body;
+    try{
+        const user=await UserModel.findOne({email});
+        if(!user){
+            return res.status(400).json({message:"User does not exist"});
+        }
+        const isPasswordValid=await bcrypt.compare(password,user.password);
+        if(!isPasswordValid){
+            return res.status(400).json({message:"Invalid credentials"});
+        }
 
+        const token=jwt.sign({id:user._id},process.env.JWT_SECRET)
+        res.cookie("token",token)
+        res.status(200).json({
+            message:"User logged in successfully",
+            user:{
+                _id:user._id,
+                fullName:user.fullName,
+                email:user.email
+            },
+            token
+        })
+    }
+    catch(error){
+        return res.status(500).json({message:error.message});
+    }
 }
 
-module.exports={registerUser,loginUser};
+async function logoutUser(req,res){
+    res.clearCookie("token");
+    res.status(200).json({message:"User logged out successfully"});
+}
+
+module.exports={registerUser,loginUser,logoutUser};
