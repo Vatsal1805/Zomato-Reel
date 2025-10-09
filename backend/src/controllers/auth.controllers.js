@@ -6,7 +6,7 @@ const jwt=require('jsonwebtoken');
 
 async function registerUser(req,res){
     try {
-        const {fullName,email,password}=req.body;
+        const {fullName,email,password,phoneNumber}=req.body;
         const existingUser=await UserModel.findOne({
             email
         })
@@ -19,7 +19,8 @@ async function registerUser(req,res){
         const newUser=await UserModel.create({
             fullName,
             email,
-            password:hashedPassword
+            password:hashedPassword,
+            phoneNumber
         });
 
         const token=jwt.sign({id:newUser._id,
@@ -34,7 +35,8 @@ async function registerUser(req,res){
             user:{
                 _id:newUser._id,
                 fullName:newUser.fullName,
-                email:newUser.email
+                email:newUser.email,
+                phoneNumber:newUser.phoneNumber
             },
             token
         })
@@ -82,7 +84,7 @@ async function logoutUser(req,res){
 
 async function registerFoodPartner(req, res) {
     try {
-        const { name, email, password } = req.body;
+        const { restaurantName, email, password,phone,ownerName,address } = req.body;
         const existingPartner = await FoodPartnerModel.findOne({ email });
         if (existingPartner) {
             return res.status(400).json({ message: "Food Partner already exists" });
@@ -90,10 +92,11 @@ async function registerFoodPartner(req, res) {
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const newPartner = await FoodPartnerModel.create({
-            name,
+            restaurantName,
             email,
-            password: hashedPassword
-        });
+            password: hashedPassword,
+            phone,ownerName,address    
+            });
 
         const token = jwt.sign({ id: newPartner._id }, process.env.JWT_SECRET);
 
@@ -103,8 +106,13 @@ async function registerFoodPartner(req, res) {
             message: "Food Partner registered successfully",
             partner: {
                 _id: newPartner._id,
-                name: newPartner.name,
-                email: newPartner.email
+                restaurantName: newPartner.restaurantName,
+                email: newPartner.email,
+                ownerName: newPartner.ownerName,
+                address: newPartner.address,
+                phone: newPartner.phone,
+                password:newPartner.password
+                
             },
             token
         });

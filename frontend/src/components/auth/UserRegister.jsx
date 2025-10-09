@@ -1,0 +1,132 @@
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import '../../styles/auth.css';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
+const UserRegister = () => {
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    password: ''
+  });
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const navigate=useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try{
+    // Login logic will be added later
+    const {fullName,email, phoneNumber,password}= formData;
+
+    const response = await axios.post("http://localhost:3000/api/auth/user/register",{fullName,email,phoneNumber,password},{
+      withCredentials:true
+    })
+    console.log('User registration:', formData);
+    navigate("/home");
+  } catch(error){
+    console.error('Registration failed:', error.response?.data || error.message);
+    alert('Registration failed. Please try again.');
+  }
+  };
+
+  return (
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-header">
+          <div className="auth-logo">🍜</div>
+          <h1 className="auth-title">Join Zomato Reel</h1>
+          <p className="auth-subtitle">Create your account to start ordering</p>
+        </div>
+
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="fullName" className="form-label">Full Name</label>
+            <input
+              type="text"
+              id="fullName"
+              name="fullName"
+              className="form-input"
+              placeholder="Enter your full name"
+              value={formData.fullName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="email" className="form-label">Email Address</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              className="form-input"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="phone" className="form-label">Phone Number</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              className="form-input"
+              placeholder="Enter your phone number"
+              value={formData.phone}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password" className="form-label">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              className="form-input"
+              placeholder="Create a password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <button type="submit" className="btn btn-primary btn-full">
+            Create Account
+          </button>
+        </form>
+
+        <div className="auth-footer">
+          <p className="auth-footer-text">
+            Already have an account?{' '}
+            <Link to="/user/login" className="auth-link">
+              Sign In
+            </Link>
+          </p>
+          <div className="auth-divider">or</div>
+          <p className="auth-footer-text">
+            Want to become a partner?{' '}
+            <Link to="/food-partner/register" className="auth-link">
+              Register as Food Partner
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default UserRegister;
