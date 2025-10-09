@@ -29,7 +29,13 @@ const ChooseRegister = () => {
 
         <div className="auth-footer">
           <div className="auth-divider">New here?</div>
-          <div style={{ display: 'flex', gap: 'var(--spacing-md)', justifyContent: 'center' }}>
+          <div style={{ 
+            display: 'flex', 
+            gap: 'var(--spacing-md)', 
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+            alignItems: 'center'
+          }}>
             <Link to="/user/register" className="auth-link">
               Register as Customer
             </Link>

@@ -26,13 +26,21 @@ async function addFoodItem(req, res) {
 
 async function getAllFoodItems(req, res) {
     try {
-        const foodItems = await FoodItemModel.find().populate("foodPartner", "name email");
+        const foodItems = await FoodItemModel.find()
+            .populate("foodPartner", "restaurantName ownerName email")
+            .sort({ createdAt: -1 }); // Sort by newest first
+        
         res.status(200).json({
             message: "Food items fetched successfully",
-            foodItems
+            foodItems,
+            count: foodItems.length
         });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error("Error fetching food items:", error);
+        res.status(500).json({ 
+            message: "Failed to fetch food items",
+            error: error.message 
+        });
     }   
 }
 

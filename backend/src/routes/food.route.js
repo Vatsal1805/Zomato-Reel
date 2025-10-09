@@ -10,7 +10,7 @@ const upload=multer({
 
 
 router.post('/', authenticateFoodPartner,upload.single("video"), foodController.addFoodItem);
-router.get('/',authenticateUser,foodController.getAllFoodItems);
+router.get('/', authenticateUser, foodController.getAllFoodItems);
 
 
 

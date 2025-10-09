@@ -24,17 +24,25 @@ const UserRegister = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try{
-    // Login logic will be added later
-    const {fullName,email, phoneNumber,password}= formData;
+    // Extract data from formData state
+    const {fullName, email, phone, password} = formData;
+    const phoneNumber = phone; // Map phone to phoneNumber for backend
 
-    const response = await axios.post("http://localhost:3000/api/auth/user/register",{fullName,email,phoneNumber,password},{
+    const response = await axios.post("http://localhost:3000/api/auth/user/register",{
+      fullName,
+      email,
+      phoneNumber,
+      password
+    },{
       withCredentials:true
-    })
-    console.log('User registration:', formData);
+    });
+    
+    console.log('User registration successful:', response.data);
+    alert('Registration successful!');
     navigate("/home");
   } catch(error){
     console.error('Registration failed:', error.response?.data || error.message);
-    alert('Registration failed. Please try again.');
+    alert(`Registration failed: ${error.response?.data?.message || error.message}`);
   }
   };
 
@@ -86,6 +94,8 @@ const UserRegister = () => {
               placeholder="Enter your phone number"
               value={formData.phone}
               onChange={handleChange}
+              inputMode="numeric"
+              pattern="[0-9]*"
               required
             />
           </div>

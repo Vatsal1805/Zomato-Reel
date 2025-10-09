@@ -1,0 +1,376 @@
+/* Home.css - TikTok/Instagram style video feed */
+
+.home-container {
+  height: 100vh;
+  width: 100vw;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: #000;
+  /* Hide scrollbar for cleaner look */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.home-container::-webkit-scrollbar {
+  display: none; /* WebKit browsers */
+}
+
+.video-container {
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+  scroll-snap-align: start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+}
+
+.video-player {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.video-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0.4) 50%,
+    transparent 100%
+  );
+  padding: 80px 20px 40px 20px;
+  pointer-events: none;
+}
+
+.video-content {
+  pointer-events: auto;
+  max-width: 100%;
+}
+
+.video-description {
+  margin-bottom: 20px;
+}
+
+.video-description p {
+  color: white;
+  font-size: 16px;
+  line-height: 1.4;
+  margin: 0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  
+  /* Ensure text doesn't exceed 2 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 2.8em; /* 2 lines * 1.4 line-height */
+}
+
+.visit-store-btn {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.visit-store-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+  background: linear-gradient(135deg, #ff5252, #e53935);
+}
+
+.visit-store-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(255, 107, 107, 0.4);
+}
+
+/* Video loading placeholder */
+.video-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #1a1a1a;
+  color: white;
+  z-index: 5;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.video-container.loaded .video-placeholder {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Video fallback styling */
+.video-fallback {
+  filter: blur(0.5px);
+  opacity: 0.8;
+}
+
+.video-container:not(.loaded) .video-placeholder {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.video-container.loaded .video-placeholder {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid #ff6b6b;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.video-placeholder p {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .video-overlay {
+    padding: 60px 16px 40px 16px;
+  }
+  
+  .video-description p {
+    font-size: 14px;
+    line-height: 1.3;
+    max-height: 2.6em;
+  }
+  
+  .visit-store-btn {
+    padding: 14px 32px;
+    font-size: 15px;
+    border-radius: 25px;
+    min-height: 48px;
+    font-weight: 600;
+  }
+  
+  .scroll-indicator {
+    right: 12px;
+  }
+  
+  .scroll-dot {
+    width: 6px;
+    height: 6px;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .video-overlay {
+    padding: 40px 16px 30px 16px;
+  }
+  
+  .video-description {
+    margin-bottom: 16px;
+  }
+  
+  .video-description p {
+    font-size: 14px;
+    line-height: 1.4;
+    max-height: 2.8em;
+    font-weight: 400;
+  }
+  
+  .visit-store-btn {
+    padding: 14px 28px;
+    font-size: 15px;
+    width: 100%;
+    max-width: 280px;
+    min-height: 50px;
+    font-weight: 600;
+    border-radius: 25px;
+    margin: 0 auto;
+    display: block;
+  }
+  
+  .scroll-indicator {
+    right: 8px;
+    gap: 6px;
+  }
+  
+  .scroll-dot {
+    width: 5px;
+    height: 5px;
+  }
+  
+  .scroll-dot.active {
+    width: 6px;
+    height: 6px;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (orientation: landscape) and (max-height: 600px) {
+  .video-overlay {
+    padding: 40px 20px 20px 20px;
+  }
+  
+  .video-description {
+    margin-bottom: 15px;
+  }
+  
+  .video-description p {
+    font-size: 14px;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    max-height: 1.4em;
+  }
+  
+  .visit-store-btn {
+    padding: 10px 24px;
+    font-size: 14px;
+  }
+}
+
+/* Smooth scrolling enhancement */
+@media (prefers-reduced-motion: no-preference) {
+  .home-container {
+    scroll-behavior: smooth;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .video-overlay {
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.95) 0%,
+      rgba(0, 0, 0, 0.7) 50%,
+      transparent 100%
+    );
+  }
+  
+  .video-description p {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 1);
+  }
+}
+
+/* Touch-friendly interactions */
+@media (hover: none) and (pointer: coarse) {
+  .visit-store-btn {
+    padding: 16px 36px;
+    font-size: 16px;
+    min-height: 48px;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  
+  .visit-store-btn:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+    background: linear-gradient(135deg, #e55a24, #d63031);
+  }
+  
+  /* Better scroll snapping on touch devices */
+  .home-container {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+  
+  /* Prevent text selection on video descriptions */
+  .video-description p {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+/* Add subtle animation for smooth experience */
+.video-container {
+  transition: transform 0.3s ease;
+}
+
+.video-player {
+  transition: opacity 0.3s ease;
+}
+
+/* Improve loading state */
+.video-container:not(.loaded) .video-player {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.video-container.loaded .video-player {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Ensure video fills container */
+.video-player {
+  background-color: black;
+  display: block;
+}
+
+/* Add progress indicator */
+.scroll-indicator {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.scroll-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.scroll-dot.active {
+  background: white;
+  transform: scale(1.2);
+}
