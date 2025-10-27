@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../../styles/auth.css';
 import axios from 'axios';
+import { API_ENDPOINTS } from '../../config/api';
 
 const FoodPartnerLogin = () => {
   const [formData, setFormData] = useState({
@@ -24,7 +25,7 @@ const FoodPartnerLogin = () => {
     const { email, password } = formData;
 
     const response = await axios.post(
-      "http://localhost:3000/api/auth/foodpartner/login",
+      API_ENDPOINTS.FOOD_PARTNER_LOGIN,
       { email, password },
       { withCredentials: true }
     );

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./CreateFood.css";
+import { API_ENDPOINTS } from '../../config/api';
 
 const CreateFood = () => {
     const [formData, setFormData] = useState({
@@ -24,7 +25,7 @@ const CreateFood = () => {
         const checkAuthentication = async () => {
             try {
                 // Check food partner authentication
-                const response = await axios.get("http://localhost:3000/api/foodpartner/auth/check", {
+                const response = await axios.get(API_ENDPOINTS.FOOD_PARTNER_AUTH_CHECK, {
                     withCredentials: true
                 });
                 console.log("Food partner authenticated:", response.data);
@@ -131,7 +132,7 @@ const CreateFood = () => {
             setUploadStatus("Uploading video...");
 
             const response = await axios.post(
-                "http://localhost:3000/api/food",
+                API_ENDPOINTS.FOOD_ITEMS,
                 uploadData,
                 {
                     headers: {

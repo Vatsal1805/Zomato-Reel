@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import "./Saved.css";
+import { API_ENDPOINTS } from '../../config/api';
 
 const Saved = () => {
     const [savedVideos, setSavedVideos] = useState([]);
@@ -15,7 +16,7 @@ const Saved = () => {
         const fetchSavedVideos = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get("http://localhost:3000/api/food/saved", {
+                const response = await axios.get(API_ENDPOINTS.FOOD_SAVED, {
                     withCredentials: true
                 });
                 
@@ -43,7 +44,7 @@ const Saved = () => {
 
     const handleUnsaveVideo = async (videoId) => {
         try {
-            await axios.post("http://localhost:3000/api/food/save", {
+            await axios.post(API_ENDPOINTS.FOOD_SAVE, {
                 id: videoId
             }, {
                 withCredentials: true

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import '../../styles/auth.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { API_ENDPOINTS } from '../../config/api';
 
 const UserRegister = () => {
   const [formData, setFormData] = useState({
@@ -28,7 +29,7 @@ const UserRegister = () => {
     const {fullName, email, phone, password} = formData;
     const phoneNumber = phone; // Map phone to phoneNumber for backend
 
-    const response = await axios.post("http://localhost:3000/api/auth/user/register",{
+    const response = await axios.post(API_ENDPOINTS.USER_REGISTER,{
       fullName,
       email,
       phoneNumber,

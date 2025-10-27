@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import './Home.css';
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import { API_ENDPOINTS } from '../../config/api';
 
 const Home = () => {
     const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
@@ -24,7 +25,7 @@ const Home = () => {
         const fetchVideos = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get("http://localhost:3000/api/food", { 
+                const response = await axios.get(API_ENDPOINTS.FOOD_ITEMS, { 
                     withCredentials: true 
                 });
                 
@@ -76,7 +77,7 @@ const Home = () => {
     const fetchUserPreferences = async () => {
         try {
             // Fetch liked videos
-            const likedResponse = await axios.get("http://localhost:3000/api/food/liked", {
+            const likedResponse = await axios.get(API_ENDPOINTS.FOOD_LIKED, {
                 withCredentials: true
             });
             if (likedResponse.data.likedItems) {
@@ -85,7 +86,7 @@ const Home = () => {
             }
 
             // Fetch saved videos
-            const savedResponse = await axios.get("http://localhost:3000/api/food/saved", {
+            const savedResponse = await axios.get(API_ENDPOINTS.FOOD_SAVED, {
                 withCredentials: true
             });
             if (savedResponse.data.savedItems) {
@@ -143,7 +144,7 @@ const Home = () => {
 
     const handleLikeVideo = async (videoId) => {
         try {
-            const response = await axios.post("http://localhost:3000/api/food/like", {
+            const response = await axios.post(API_ENDPOINTS.FOOD_LIKE, {
                 id: videoId
             }, {
                 withCredentials: true
@@ -184,7 +185,7 @@ const Home = () => {
 
     const handleSaveVideo = async (videoId) => {
         try {
-            const response = await axios.post("http://localhost:3000/api/food/save", {
+            const response = await axios.post(API_ENDPOINTS.FOOD_SAVE, {
                 id: videoId
             }, {
                 withCredentials: true
@@ -227,7 +228,7 @@ const Home = () => {
     const fetchComments = async (videoId) => {
         try {
             setLoadingComments(true);
-            const response = await axios.get(`http://localhost:3000/api/food/comments/${videoId}`, {
+            const response = await axios.get(API_ENDPOINTS.FOOD_COMMENTS_BY_ID(videoId), {
                 withCredentials: true
             });
             
@@ -259,7 +260,7 @@ const Home = () => {
 
     const addComment = async (videoId, text) => {
         try {
-            const response = await axios.post("http://localhost:3000/api/food/comments", {
+            const response = await axios.post(API_ENDPOINTS.FOOD_COMMENTS, {
                 foodId: videoId,
                 text: text
             }, {

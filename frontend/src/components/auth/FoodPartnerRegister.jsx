@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../../styles/auth.css';
 import axios from 'axios';
+import { API_ENDPOINTS } from '../../config/api';
 
 const FoodPartnerRegister = () => {
   const [formData, setFormData] = useState({
@@ -29,7 +30,7 @@ const FoodPartnerRegister = () => {
       const { restaurantName, ownerName, email, phone, address, password } = formData;
 
       const response = await axios.post(
-        'http://localhost:3000/api/auth/foodpartner/register',
+        API_ENDPOINTS.FOOD_PARTNER_REGISTER,
         { restaurantName, ownerName, email, phone, address, password },
         { withCredentials: true }
       );

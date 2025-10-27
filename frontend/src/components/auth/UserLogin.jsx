@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../../styles/auth.css';
 import axios from 'axios';
+import { API_ENDPOINTS } from '../../config/api';
 
 const UserLogin = () => {
   const [formData, setFormData] = useState({
@@ -26,7 +27,7 @@ const UserLogin = () => {
     const { email, password } = formData;
 
     const response = await axios.post(
-      "http://localhost:3000/api/auth/user/login",
+      API_ENDPOINTS.USER_LOGIN,
       { email, password },
       { withCredentials: true }
     );

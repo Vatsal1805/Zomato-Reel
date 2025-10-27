@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import './Profile.css';
+import { API_ENDPOINTS } from '../../config/api';
 
 const Profile = () => {
     const navigate = useNavigate();
@@ -19,7 +20,7 @@ const Profile = () => {
         const fetchPartnerProfile = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get(`http://localhost:3000/api/foodpartner/${partnerId}`, {
+                const response = await axios.get(API_ENDPOINTS.FOOD_PARTNER_PROFILE(partnerId), {
                     withCredentials: true
                 });
                 
