@@ -2,7 +2,11 @@ const mongoose=require('mongoose');
 
 
 function connectDB(){
-    mongoose.connect(process.env.MONGO_URI)
+    mongoose.connect(process.env.MONGO_URI, {
+        ssl: true,
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+    })
     .then(()=>{
         console.log("DB connected");
     })
