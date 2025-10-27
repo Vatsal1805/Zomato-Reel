@@ -9,6 +9,13 @@ const Home = () => {
     const [videos, setVideos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [likedVideos, setLikedVideos] = useState(new Set());
+    const [savedVideos, setSavedVideos] = useState(new Set());
+    const [showCommentModal, setShowCommentModal] = useState(false);
+    const [currentVideoForComment, setCurrentVideoForComment] = useState(null);
+    const [commentText, setCommentText] = useState("");
+    const [comments, setComments] = useState([]);
+    const [loadingComments, setLoadingComments] = useState(false);
     const containerRef = useRef(null);
     const navigate = useNavigate();
 
@@ -30,11 +37,21 @@ const Home = () => {
                     storeName: item.foodPartner?.restaurantName || item.foodPartner?.ownerName || "Food Partner",
                     storeId: item.foodPartner?._id,
                     name: item.name,
-                    thumbnail: item.videoUrl // Use video URL as thumbnail for now
+                    thumbnail: item.videoUrl, // Use video URL as thumbnail for now
+                    likeCount: item.likeCount || 0,
+                    commentCount: item.commentCount || 0,
+                    isLiked: item.isLiked || false,
+                    isSaved: item.isSaved || false
                 }));
                 
                 setVideos(transformedVideos);
                 setError(null);
+                
+                // Set liked and saved videos from the response
+                const likedIds = new Set(transformedVideos.filter(video => video.isLiked).map(video => video._id));
+                const savedIds = new Set(transformedVideos.filter(video => video.isSaved).map(video => video._id));
+                setLikedVideos(likedIds);
+                setSavedVideos(savedIds);
             } catch (error) {
                 console.error("Error fetching food items:", error);
                 
@@ -55,6 +72,31 @@ const Home = () => {
 
         fetchVideos();
     }, [navigate]);
+
+    const fetchUserPreferences = async () => {
+        try {
+            // Fetch liked videos
+            const likedResponse = await axios.get("http://localhost:3000/api/food/liked", {
+                withCredentials: true
+            });
+            if (likedResponse.data.likedItems) {
+                const likedIds = new Set(likedResponse.data.likedItems.map(item => item._id));
+                setLikedVideos(likedIds);
+            }
+
+            // Fetch saved videos
+            const savedResponse = await axios.get("http://localhost:3000/api/food/saved", {
+                withCredentials: true
+            });
+            if (savedResponse.data.savedItems) {
+                const savedIds = new Set(savedResponse.data.savedItems.map(item => item._id));
+                setSavedVideos(savedIds);
+            }
+        } catch (error) {
+            console.error("Error fetching user preferences:", error);
+            // Don't show error to user as this is non-critical
+        }
+    };
 
   
 
@@ -97,6 +139,152 @@ const Home = () => {
             return words.slice(0, maxWords).join(' ') + '...';
         }
         return text;
+    };
+
+    const handleLikeVideo = async (videoId) => {
+        try {
+            const response = await axios.post("http://localhost:3000/api/food/like", {
+                id: videoId
+            }, {
+                withCredentials: true
+            });
+            
+            if (response.data.liked) {
+                setLikedVideos(prev => new Set([...prev, videoId]));
+            } else {
+                setLikedVideos(prev => {
+                    const newSet = new Set(prev);
+                    newSet.delete(videoId);
+                    return newSet;
+                });
+            }
+            
+            // Update video likes count locally
+            setVideos(prev => prev.map(video => 
+                video._id === videoId 
+                    ? { 
+                        ...video, 
+                        likeCount: response.data.liked 
+                            ? (video.likeCount || 0) + 1 
+                            : Math.max(0, (video.likeCount || 1) - 1)
+                      }
+                    : video
+            ));
+            
+        } catch (error) {
+            console.error("Error liking video:", error);
+            if (error.response?.status === 401) {
+                alert("Please login to like videos!");
+                navigate("/");
+            } else {
+                alert("Failed to like video. Please try again.");
+            }
+        }
+    };
+
+    const handleSaveVideo = async (videoId) => {
+        try {
+            const response = await axios.post("http://localhost:3000/api/food/save", {
+                id: videoId
+            }, {
+                withCredentials: true
+            });
+            
+            if (response.data.saved) {
+                setSavedVideos(prev => new Set([...prev, videoId]));
+                alert("Video saved to your collection!");
+            } else {
+                setSavedVideos(prev => {
+                    const newSet = new Set(prev);
+                    newSet.delete(videoId);
+                    return newSet;
+                });
+                alert("Video removed from saved collection");
+            }
+            
+        } catch (error) {
+            console.error("Error saving video:", error);
+            if (error.response?.status === 401) {
+                alert("Please login to save videos!");
+                navigate("/");
+            } else {
+                alert("Failed to save video. Please try again.");
+            }
+        }
+    };
+
+    const handleCommentVideo = async (videoId) => {
+        const video = videos.find(v => v._id === videoId);
+        setCurrentVideoForComment(video);
+        setShowCommentModal(true);
+        setCommentText("");
+        setComments([]);
+        
+        // Fetch existing comments
+        await fetchComments(videoId);
+    };
+
+    const fetchComments = async (videoId) => {
+        try {
+            setLoadingComments(true);
+            const response = await axios.get(`http://localhost:3000/api/food/comments/${videoId}`, {
+                withCredentials: true
+            });
+            
+            setComments(response.data.comments || []);
+        } catch (error) {
+            console.error("Error fetching comments:", error);
+            setComments([]);
+        } finally {
+            setLoadingComments(false);
+        }
+    };
+
+    const handleSubmitComment = async () => {
+        if (commentText.trim() && currentVideoForComment) {
+            const success = await addComment(currentVideoForComment._id, commentText.trim());
+            if (success) {
+                setCommentText("");
+                // Refresh comments after adding new one
+                await fetchComments(currentVideoForComment._id);
+            }
+        }
+    };
+
+    const handleCloseCommentModal = () => {
+        setShowCommentModal(false);
+        setCommentText("");
+        setCurrentVideoForComment(null);
+    };
+
+    const addComment = async (videoId, text) => {
+        try {
+            const response = await axios.post("http://localhost:3000/api/food/comments", {
+                foodId: videoId,
+                text: text
+            }, {
+                withCredentials: true
+            });
+            
+            // Update comment count locally
+            setVideos(prev => prev.map(video => 
+                video._id === videoId 
+                    ? { ...video, commentCount: (video.commentCount || 0) + 1 }
+                    : video
+            ));
+            
+            return true;
+            
+        } catch (error) {
+            console.error("Error adding comment:", error);
+            if (error.response?.status === 401) {
+                alert("Please login to comment on videos!");
+                navigate("/");
+            } else {
+                alert("Failed to add comment. Please try again.");
+            }
+            return false;
+        }
     };
 
     useEffect(() => {
@@ -221,16 +409,6 @@ const Home = () => {
 
     return (
         <div className="home-container" ref={containerRef}>
-            {/* Scroll progress indicator */}
-            <div className="scroll-indicator">
-                {videos.map((_, index) => (
-                    <div 
-                        key={index}
-                        className={`scroll-dot ${index === currentVideoIndex ? 'active' : ''}`}
-                    />
-                ))}
-            </div>
-
             {videos.map((video, index) => (
                 <div key={video._id} className={`video-container ${loadedVideos.has(video._id) ? 'loaded' : ''}`}>
                     <video
@@ -282,19 +460,67 @@ const Home = () => {
                         }}
                     ></div>
                     
-                    {/* Video overlay with description and button */}
+                    {/* Right side action icons */}
+                    <div className="video-actions">
+                        <div className="action-item">
+                            <button 
+                                className={`action-btn like-btn ${likedVideos.has(video._id) ? 'liked' : ''}`}
+                                onClick={() => handleLikeVideo(video._id)}
+                                title="Like"
+                            >
+                                <span className="action-icon">
+                                    {likedVideos.has(video._id) ? '❤️' : '🤍'}
+                                </span>
+                            </button>
+                            <span className="action-count">{video.likeCount || 0}</span>
+                        </div>
+                        
+                        <div className="action-item">
+                            <button 
+                                className={`action-btn save-btn ${savedVideos.has(video._id) ? 'saved' : ''}`}
+                                onClick={() => handleSaveVideo(video._id)}
+                                title="Save"
+                            >
+                                <span className="action-icon">
+                                    {savedVideos.has(video._id) ? '🔖' : '🏷️'}
+                                </span>
+                            </button>
+                            <span className="action-count">
+                                {savedVideos.has(video._id) ? 'Saved' : 'Save'}
+                            </span>
+                        </div>
+                        
+                        <div className="action-item">
+                            <button 
+                                className="action-btn comment-btn"
+                                onClick={() => handleCommentVideo(video._id)}
+                                title="Comment"
+                            >
+                                <span className="action-icon">💬</span>
+                            </button>
+                            <span className="action-count">{video.commentCount || 0}</span>
+                        </div>
+                        
+                        <div className="action-item">
+                            <Link 
+                                to="/create-food-partner" 
+                                className="action-btn add-food-btn"
+                                title="Add Food Item"
+                            >
+                                <span className="action-icon">➕</span>
+                            </Link>
+                            <span className="action-count">Add</span>
+                        </div>
+                    </div>
+
+                    {/* Bottom overlay with description and store button */}
                     <div className="video-overlay">
                         <div className="video-content">
                             <div className="video-description">
-                                <h4 style={{ 
-                                    color: 'white', 
-                                    margin: '0 0 8px 0', 
-                                    fontSize: '16px', 
-                                    fontWeight: '600' 
-                                }}>
+                                <h4 className="video-title">
                                     {video.name}
                                 </h4>
-                                <p>{truncateText(video.description || `Delicious ${video.name} from ${video.storeName}`)}</p>
+                                <p className="video-desc">{truncateText(video.description || `Delicious ${video.name} from ${video.storeName}`)}</p>
                             </div>
                             <button 
                                 className="visit-store-btn"
@@ -313,11 +539,99 @@ const Home = () => {
                 </div>
             ))}
             
-            {/* Floating Action Button for Food Partners */}
-            <Link to="/create-food-partner" className="fab-add-food" title="Add New Food Item">
-                <span className="fab-icon">+</span>
-                <span className="fab-text">Add Food</span>
-            </Link>
+            {/* Comment Modal */}
+            {showCommentModal && (
+                <div className="comment-modal-overlay" onClick={handleCloseCommentModal}>
+                    <div className="comment-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="comment-modal-header">
+                            <h3>Comments</h3>
+                            <button className="close-btn" onClick={handleCloseCommentModal}>
+                                ✕
+                            </button>
+                        </div>
+                        
+                        <div className="comment-modal-body">
+                            <div className="video-info-small">
+                                <span className="video-name">{currentVideoForComment?.name}</span>
+                                <span className="comment-count">{currentVideoForComment?.commentCount || 0} comments</span>
+                            </div>
+                            
+                            {/* Comments List */}
+                            <div className="comments-section">
+                                {loadingComments ? (
+                                    <div className="loading-comments">
+                                        <div className="loading-spinner-small"></div>
+                                        <span>Loading comments...</span>
+                                    </div>
+                                ) : comments.length > 0 ? (
+                                    <div className="comments-list">
+                                        {comments.map((comment) => (
+                                            <div key={comment._id} className="comment-item">
+                                                <div className="comment-author">
+                                                    <span className="author-name">
+                                                        {comment.user?.username || comment.user?.email || "Anonymous"}
+                                                    </span>
+                                                    <span className="comment-time">
+                                                        {new Date(comment.createdAt).toLocaleDateString()}
+                                                    </span>
+                                                </div>
+                                                <div className="comment-text">
+                                                    {comment.text}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="no-comments">
+                                        <span className="no-comments-icon">💬</span>
+                                        <p>No comments yet. Be the first to share your thoughts!</p>
+                                    </div>
+                                )}
+                            </div>
+                            
+                            {/* Add Comment Section */}
+                            <div className="add-comment-section">
+                                <textarea
+                                    className="comment-input"
+                                    placeholder="Share your thoughts about this delicious food..."
+                                    value={commentText}
+                                    onChange={(e) => setCommentText(e.target.value)}
+                                    maxLength={500}
+                                    rows={3}
+                                />
+                                
+                                <div className="comment-actions">
+                                    <button 
+                                        className="cancel-btn" 
+                                        onClick={handleCloseCommentModal}
+                                    >
+                                        Close
+                                    </button>
+                                    <button 
+                                        className="submit-btn" 
+                                        onClick={handleSubmitComment}
+                                        disabled={!commentText.trim()}
+                                    >
+                                        Post Comment
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Bottom Navigation Bar */}
+            <div className="bottom-nav">
+                <Link to="/home" className="nav-item active">
+                    <span className="nav-icon">🏠</span>
+                    <span className="nav-label">Home</span>
+                </Link>
+                <Link to="/saved" className="nav-item">
+                    <span className="nav-icon">🔖</span>
+                    <span className="nav-label">Saved</span>
+                </Link>
+            </div>
         </div>
     );
 };
