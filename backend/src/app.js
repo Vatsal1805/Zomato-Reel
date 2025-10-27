@@ -11,7 +11,9 @@ const app=express();
 app.use(cookieParser());
 app.use(express.json());
 app.use(cors({
-    origin:["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"],
+    origin: process.env.NODE_ENV === 'production' 
+        ? [process.env.FRONTEND_URL || "https://your-frontend-domain.vercel.app"]
+        : ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://localhost:5177"],
     methods:["GET","POST","PUT","DELETE"],
     credentials:true
 }))
