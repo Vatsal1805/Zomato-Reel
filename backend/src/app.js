@@ -12,7 +12,10 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(cors({
     origin: process.env.NODE_ENV === 'production' 
-        ? [process.env.FRONTEND_URL || "https://your-frontend-domain.vercel.app"]
+        ? [
+            process.env.FRONTEND_URL || "https://zomato-reel-sepia.vercel.app",
+            "https://zomato-reel-sepia.vercel.app"
+          ]
         : ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://localhost:5177"],
     methods:["GET","POST","PUT","DELETE"],
     credentials:true
