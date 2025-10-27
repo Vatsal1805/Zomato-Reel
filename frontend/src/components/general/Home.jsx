@@ -80,11 +80,9 @@ const Home = () => {
             return;
         }
         
-        // Navigate to store page or show store details
+        // Navigate to food partner profile page
         console.log(`Visiting store: ${storeName} (ID: ${storeId})`);
-        // You can add navigation logic here later
-        // navigate(`/store/${storeId}`);
-        alert(`Coming soon: ${storeName}'s store page!\n\nStore ID: ${storeId}`);
+        navigate(`/partner/${storeId}`);
     };
 
     const handleVideoLoad = (videoId) => {
@@ -314,6 +312,12 @@ const Home = () => {
                     </div>
                 </div>
             ))}
+            
+            {/* Floating Action Button for Food Partners */}
+            <Link to="/create-food-partner" className="fab-add-food" title="Add New Food Item">
+                <span className="fab-icon">+</span>
+                <span className="fab-text">Add Food</span>
+            </Link>
         </div>
     );
 };

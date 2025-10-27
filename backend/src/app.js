@@ -2,6 +2,7 @@ const express=require('express');
 const cookieParser=require('cookie-parser');
 const authRoute=require('./routes/auth.route');
 const foodRoutes=require('./routes/food.route');
+const foodPartnerRoute=require('./routes/food-partner.route');
 const cors=require('cors');
 
 
@@ -21,4 +22,5 @@ app.get("/",(req,res)=>{
 
 app.use("/api/auth",authRoute);
 app.use("/api/food",foodRoutes);
+app.use("/api/foodpartner", foodPartnerRoute);
 module.exports=app;
