@@ -28,7 +28,12 @@ async function registerUser(req,res){
 
         },process.env.JWT_SECRET)
 
-        res.cookie("token",token)
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
 
         res.status(201).json({
             message:"User registered successfully",
@@ -61,7 +66,12 @@ async function loginUser(req,res){
         }
 
         const token=jwt.sign({id:user._id},process.env.JWT_SECRET)
-        res.cookie("token",token)
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
         res.status(200).json({
             message:"User logged in successfully",
             user:{
@@ -100,7 +110,12 @@ async function registerFoodPartner(req, res) {
 
         const token = jwt.sign({ id: newPartner._id }, process.env.JWT_SECRET);
 
-        res.cookie("token", token);
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
 
         res.status(201).json({
             message: "Food Partner registered successfully",
@@ -136,7 +151,12 @@ async function loginFoodPartner(req, res) {
 
         const token = jwt.sign({ id: partner._id }, process.env.JWT_SECRET);
 
-        res.cookie("token", token);
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
 
         res.status(200).json({
             message: "Food Partner logged in successfully",
