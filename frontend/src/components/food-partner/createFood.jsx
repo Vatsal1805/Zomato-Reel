@@ -171,9 +171,9 @@ const CreateFood = () => {
             setUploadStatus("");
             
             // Redirect to home after 3 seconds to show success message
-            setTimeout(() => {
-                navigate("/home");
-            }, 3000);
+            // setTimeout(() => {
+            //     navigate("/home");
+            // }, 3000);
 
         } catch (error) {
             console.error("Error creating food item:", error);
